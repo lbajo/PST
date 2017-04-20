@@ -1,0 +1,64 @@
+-- LORENA BAJO REBOLLO
+
+with Ada.Text_IO;
+with Ada.Strings.Unbounded;
+with Ada.Exceptions;
+with Ada.IO_Exceptions;
+with Ada.Command_Line;
+with Maps_g;
+with Lower_Layer_UDP;
+with Ada.Calendar;
+with Time_String;
+--with Maps_Protector_G;
+with Gnat.Calendar.Time_IO;
+
+procedure Testmap is
+
+	package ASU renames Ada.Strings.Unbounded;
+	package ATI renames Ada.Text_IO;
+	package ACL renames Ada.Command_Line;
+	package LLU renames Lower_Layer_UDP;
+	package C_IO renames Gnat.Calendar.Time_IO;
+
+
+	Calend:Ada.Calendar.Time;
+
+   function Image_3 (T: Ada.Calendar.Time) return String is
+   begin
+      return C_IO.Image(T, "%T.%i");
+   end Image_3;
+   
+
+	package Vecinos is new Maps_G (LLU.End_Point_Type, 
+					Ada.Calendar.Time,
+ 					null,
+ 					Calend, 
+					5,
+					LLU."=", 
+					LLU.Image, 
+					Image_3);
+
+	use type ASU.Unbounded_String;
+
+	Lista: Vecinos.Map;
+	Cond: Boolean:=False;
+
+begin
+
+	Calend:=Ada.Calendar.Clock;
+
+	Vecinos.Get(Lista, LLU.Build("127.0.0.1", 6001), Calend, Cond);
+  	Vecinos.Get(Lista, LLU.Build("17.1.2.3", 9567), Calend, Cond);
+
+	Vecinos.Put(Lista, LLU.Build("127.0.0.1", 6001), Calend, Cond);
+  	Vecinos.Put(Lista, LLU.Build("17.1.2.3", 9567), Calend, Cond);
+
+
+	Vecinos.Print_Map(Vecinos);
+
+
+
+
+  LLU.Finalize;
+end Testmap;
+
